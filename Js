@@ -1,0 +1,60 @@
+const textInput = document.getElementById("text-input");
+const languageSelect = document.getElementById("language");
+const voiceSelect = document.getElementById("voice");
+const speedInput = document.getElementById("speed");
+
+let voices = [];
+
+// Load languages dynamically
+function loadLanguages() {
+    let synth = window.speechSynthesis;
+    let allVoices = synth.getVoices();
+    
+    voices = allVoices;
+    
+    // Populate languages
+    let languages = [...new Set(allVoices.map(v => v.lang))];
+    languageSelect.innerHTML = languages.map(lang => `<option value="${lang}">${lang}</option>`).join("");
+
+    // Populate voices
+    updateVoices();
+}
+
+// Update voices based on selected language
+function updateVoices() {
+    let selectedLang = languageSelect.value;
+    voiceSelect.innerHTML = voices
+        .filter(v => v.lang === selectedLang)
+        .map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`)
+        .join("");
+}
+
+// Speak text
+function speakText() {
+    let text = textInput.value;
+    let selectedVoice = voiceSelect.value;
+    let speed = speedInput.value;
+
+    if (text.trim() === "") return alert("Please enter text.");
+
+    let synth = window.speechSynthesis;
+    let utterance = new SpeechSynthesisUtterance(text);
+    
+    utterance.rate = speed;
+    utterance.voice = voices.find(v => v.name === selectedVoice);
+    
+    synth.speak(utterance);
+}
+
+// Download audio
+function downloadAudio() {
+    alert("Voice download feature requires a server-side implementation!");
+}
+
+// Toggle dark mode
+function toggleTheme() {
+    document.body.classList.toggle("dark-mode");
+}
+
+// Load voices when page loads
+window.speechSynthesis.onvoiceschanged = loadLanguages;
